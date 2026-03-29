@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roberto Murru — Electronics Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700&family=Barlow+Condensed:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0c0f;
+      --surface: #111418;
+      --border: #1e2530;
+      --accent: #00e5a0;
+      --accent2: #0099ff;
+      --amber: #ffb830;
+      --text: #c8d4e0;
+      --muted: #5a6a7a;
+      --nav-bg: rgba(10,12,15,0.85);
+      --grid-color: rgba(0,229,160,0.03);
+      --photo-border: rgba(0,229,160,0.3);
+      --card-hover: #151c24;
+      --mono: 'Share Tech Mono', monospace;
+      --sans: 'Barlow', sans-serif;
+      --cond: 'Barlow Condensed', sans-serif;
+    }
+    :root.light {
+      --bg: #f0f2f5;
+      --surface: #e2e6ec;
+      --border: #c0cad6;
+      --accent: #007a55;
+      --accent2: #0055cc;
+      --amber: #b07800;
+      --text: #1a2230;
+      --muted: #6a7a8a;
+      --nav-bg: rgba(240,242,245,0.92);
+      --grid-color: rgba(0,122,85,0.05);
+      --photo-border: rgba(0,122,85,0.35);
+      --card-hover: #d8dde6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+    #waveCanvas {
+      position: fixed; bottom: 0; left: 0;
+      width: 100%; height: 120px;
+      opacity: 0.15; pointer-events: none; z-index: 0;
+    }
+    .container {
+      max-width: 1100px; margin: 0 auto; padding: 0 2rem;
+      position: relative; z-index: 1;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: var(--nav-bg); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+    .nav-logo { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); letter-spacing: 0.05em; }
+    .nav-logo span { color: var(--muted); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); text-decoration: none; letter-spacing: 0.1em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* HERO */
+    #hero { min-height: 100vh; display: flex; align-items: center; padding-top: 56px; position: relative; overflow: hidden; }
+    .hero-badge { font-family: var(--mono); font-size: 0.7rem; color: var(--accent); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+    .hero-badge::before { content: ''; width: 32px; height: 1px; background: var(--accent); }
+    h1 { font-family: var(--cond); font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 700; line-height: 0.9; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+    h1 .first { color: var(--text); }
+    h1 .last { color: var(--accent); }
+    .hero-subtitle { font-family: var(--cond); font-size: clamp(1rem, 2.5vw, 1.4rem); font-weight: 300; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 2.5rem; }
+    .hero-desc { font-size: 1rem; color: var(--text); max-width: 500px; margin-bottom: 3rem; opacity: 0.8; }
+    .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 0.75rem 1.75rem; background: var(--accent); color: var(--bg); border: none; cursor: pointer; transition: all 0.2s; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%); }
+    .btn-primary:hover { background: #00ffb3; transform: translateY(-2px); }
+    .btn-ghost { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 0.75rem 1.75rem; background: transparent; color: var(--accent); border: 1px solid var(--accent); cursor: pointer; transition: all 0.2s; }
+    .btn-ghost:hover { background: rgba(0,229,160,0.08); transform: translateY(-2px); }
+    .hero-side { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 420px; height: 420px; opacity: 0.07; pointer-events: none; }
+    .hero-side circle, .hero-side line, .hero-side path { stroke: var(--accent); stroke-width: 1; fill: none; }
+    .status-row { display: flex; gap: 2.5rem; margin-top: 3rem; flex-wrap: wrap; }
+    .status-item { display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+
+    /* SECTIONS */
+    section { padding: 6rem 0; position: relative; z-index: 1; }
+    .section-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 3.5rem; }
+    .section-num { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); }
+    .section-title { font-family: var(--cond); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+    .section-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* WORK EXPERIENCE */
+    .work-list { display: flex; flex-direction: column; gap: 1.5px; background: var(--border); border: 1px solid var(--border); }
+    .work-card { background: var(--surface); padding: 2rem 2.5rem; position: relative; overflow: hidden; transition: background 0.25s; }
+    .work-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent2); transform: scaleY(0); transform-origin: bottom; transition: transform 0.3s; }
+    .work-card:hover { background: var(--card-hover); }
+    .work-card:hover::before { transform: scaleY(1); }
+    .work-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.2rem; }
+    .work-title { font-family: var(--cond); font-size: 1.2rem; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .work-period { font-family: var(--mono); font-size: 0.65rem; color: var(--accent2); letter-spacing: 0.08em; white-space: nowrap; padding-top: 0.25rem; }
+    .work-company { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.06em; margin-bottom: 0.15rem; }
+    .work-location { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+    .work-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* SKILLS */
+    #skills { background: var(--surface); }
+    .skills-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5px; background: var(--border); border: 1px solid var(--border); }
+    @media (max-width: 600px) { .skills-grid { grid-template-columns: 1fr; } }
+    .skill-card { background: var(--surface); padding: 2rem; position: relative; overflow: hidden; transition: background 0.3s; }
+    .skill-card:hover { background: var(--card-hover); }
+    .skill-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); transform: scaleY(0); transition: transform 0.3s; transform-origin: bottom; }
+    .skill-card:hover::before { transform: scaleY(1); }
+    .skill-icon { font-size: 1.5rem; margin-bottom: 1rem; }
+    .skill-card h3 { font-family: var(--cond); font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text); margin-bottom: 1rem; }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tag { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.3rem 0.6rem; border: 1px solid var(--border); color: var(--muted); transition: all 0.2s; }
+    .tag:hover { border-color: var(--accent); color: var(--accent); }
+    .skill-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    /* PROJECTS */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .project-card { border: 1px solid var(--border); background: var(--surface); padding: 2rem; position: relative; overflow: hidden; transition: border-color 0.3s, transform 0.3s; cursor: default; }
+    .project-card:hover { border-color: var(--accent2); transform: translateY(-4px); }
+    .project-card::after { content: ''; position: absolute; top: 0; right: 0; width: 0; height: 0; border-style: solid; border-width: 0 20px 20px 0; border-color: transparent var(--accent2) transparent transparent; opacity: 0; transition: opacity 0.3s; }
+    .project-card:hover::after { opacity: 1; }
+    .proj-category { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.15em; color: var(--accent2); text-transform: uppercase; margin-bottom: 0.75rem; }
+    .project-card h3 { font-family: var(--cond); font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; line-height: 1.2; }
+    .project-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.25rem; }
+    .proj-tech { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .proj-tech span { font-family: var(--mono); font-size: 0.6rem; padding: 0.2rem 0.5rem; background: rgba(0,153,255,0.08); border: 1px solid rgba(0,153,255,0.2); color: var(--accent2); letter-spacing: 0.05em; }
+
+    /* EDUCATION */
+    #education { background: var(--surface); }
+    .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .edu-grid { grid-template-columns: 1fr; } }
+    .edu-card { border: 1px solid var(--border); padding: 1.75rem; position: relative; background: var(--card-hover); }
+    .edu-card.cert { border-color: rgba(176,120,0,0.25); }
+    .edu-type { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--amber); margin-bottom: 0.5rem; }
+    .edu-card h3 { font-family: var(--cond); font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+    .edu-card .institution { font-size: 0.85rem; color: var(--muted); }
+    .edu-thesis {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.45;
+      margin-top: 0.75rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border);
+    }
+    .edu-thesis::before {
+      content: 'Thesis  ';
+      font-family: var(--mono);
+      font-style: normal;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* PUBLICATIONS */
+    #publications { background: var(--surface); }
+    .pub-list { display: flex; flex-direction: column; gap: 1.5px; background: var(--border); border: 1px solid var(--border); }
+    .pub-card { background: var(--surface); padding: 2rem 2.5rem; position: relative; overflow: hidden; transition: background 0.25s; }
+    .pub-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--amber); transform: scaleY(0); transform-origin: bottom; transition: transform 0.3s; }
+    .pub-card:hover { background: var(--card-hover); }
+    .pub-card:hover::before { transform: scaleY(1); }
+    .pub-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+    .pub-venue { font-family: var(--mono); font-size: 0.68rem; color: var(--amber); letter-spacing: 0.08em; }
+    .pub-date { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); letter-spacing: 0.05em; }
+    .pub-date::before { content: '— '; }
+    .pub-title { font-family: var(--cond); font-size: 1.2rem; font-weight: 700; color: var(--text); margin-bottom: 0.6rem; line-height: 1.2; }
+    .pub-abstract { font-size: 0.85rem; color: var(--muted); line-height: 1.65; max-width: 820px; margin-bottom: 1rem; }
+    .pub-link { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); text-decoration: none; letter-spacing: 0.05em; margin-top: 0.75rem; display: inline-block; transition: color 0.2s; }
+    .pub-link:hover { color: var(--amber); }
+
+    /* CONTACT */
+    #contact { text-align: center; }
+    .contact-inner { width: 100%; }
+    .contact-inner p { color: var(--muted); font-size: 1rem; }
+    .interests-strip { border-top: 1px solid var(--border); padding-top: 2rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+    .interest { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 1.5rem 0; position: relative; z-index: 1; }
+    footer .container { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+
+    /* SCROLL REVEAL */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) { .hero-side { display: none; } .nav-links { display: none; } .status-row { gap: 1.5rem; } }
+
+    /* THEME TOGGLE */
+    .theme-toggle { background: none; border: 1px solid var(--border); color: var(--muted); cursor: pointer; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+    .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .theme-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; }
+    .icon-sun { display: none; } .icon-moon { display: block; }
+    :root.light .icon-sun { display: block; } :root.light .icon-moon { display: none; }
+
+    /* PHOTO */
+    .hero-photo { width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--photo-border); overflow: hidden; margin-bottom: 1.75rem; background: var(--surface); display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 0 0 4px rgba(0,229,160,0.06); transition: border-color 0.3s, box-shadow 0.3s; }
+    .hero-photo:hover { border-color: var(--accent); box-shadow: 0 0 0 6px rgba(0,229,160,0.12); }
+    .hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* CONNECT CARDS */
+    .connect-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 3rem; width: 100%; }
+    @media (max-width: 700px) { .connect-grid { grid-template-columns: repeat(2, 1fr); } }
+    .connect-card { background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 1rem; text-decoration: none; color: var(--muted); transition: background 0.2s, color 0.2s; gap: 0.75rem; position: relative; overflow: hidden; }
+    .connect-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; }
+    .connect-card:hover { background: var(--card-hover); color: var(--accent); }
+    .connect-card:hover::after { transform: scaleX(1); }
+    .connect-card svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.5; transition: transform 0.2s; }
+    .connect-card:hover svg { transform: translateY(-3px); }
+    .connect-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; }
+    .connect-sub { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); opacity: 0.6; letter-spacing: 0.05em; }
+    .connect-card:hover .connect-sub { opacity: 0.8; }
+  </style>
+</head>
+<body>
+
+  <canvas id="waveCanvas"></canvas>
+
+  <!-- NAV -->
+  <nav>
+    <div class="container">
+      <div class="nav-logo">RM<span>_eng</span> <span style="color:var(--accent);margin-left:.5rem">●</span></div>      <ul class="nav-links">
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#publications">Publications</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="container">
+      <div class="hero-photo">
+        <img src="https://drive.google.com/thumbnail?id=1wDYHqhFOcBfM9Lq73fsJCDZi-Xa_TjTI&sz=w200" alt="Roberto Murru">
+      </div>
+      <div class="hero-badge">Electronics Engineer</div>
+      <h1>
+        <div class="first">Roberto</div>
+        <div class="last">Murru</div>
+      </h1>
+      <div class="hero-subtitle">Hardware Design · Audio · Embedded Systems</div>
+      <p class="hero-desc">Designing physical systems at the intersection of analog electronics, firmware, and signal processing. From PCB layout to audio feature extraction, I build things that work.</p>
+      <div class="hero-ctas">
+        <a href="#projects" class="btn-ghost">View Projects</a>
+        <a href="#contact" class="btn-ghost">Get in Touch</a>
+        <a href="https://drive.google.com/file/d/1kw0f9i916gjqJ-UVM7cyI38RoJLKc3EW/view?usp=sharing" target="_blank" class="btn-ghost" style="display:flex;align-items:center;gap:.5rem">
+          <svg style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download CV
+        </a>
+      </div>
+      <div class="status-row">
+        <div class="status-item"><div class="status-dot"></div>MSc Electronics Engineering</div>
+        <div class="status-item"><div class="status-dot" style="background:var(--accent2);animation-delay:.5s"></div>KiCad / Eagle / Altium</div>
+        <div class="status-item"><div class="status-dot" style="background:var(--amber);animation-delay:1s"></div>EASA UAS Pilot</div>
+      </div>
+    </div>
+    <svg class="hero-side" viewBox="0 0 420 420">
+      <circle cx="210" cy="210" r="180" stroke-dasharray="8 6"/>
+      <circle cx="210" cy="210" r="120"/>
+      <circle cx="210" cy="210" r="60" stroke-dasharray="4 4"/>
+      <circle cx="210" cy="210" r="8"/>
+      <line x1="210" y1="30" x2="210" y2="180"/><line x1="210" y1="240" x2="210" y2="390"/>
+      <line x1="30" y1="210" x2="180" y2="210"/><line x1="240" y1="210" x2="390" y2="210"/>
+      <path d="M60,60 L60,90 L90,90"/><path d="M360,60 L360,90 L330,90"/>
+      <path d="M60,360 L60,330 L90,330"/><path d="M360,360 L360,330 L330,330"/>
+      <circle cx="30" cy="210" r="4"/><circle cx="390" cy="210" r="4"/>
+      <circle cx="210" cy="30" r="4"/><circle cx="210" cy="390" r="4"/>
+    </svg>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-num">01</span>
+        <h2 class="section-title">Technical Skills</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="skills-grid reveal">
+        <div class="skill-card">
+          <div class="skill-icon">⬡</div>
+          <h3>PCB Design</h3>
+          <p class="skill-desc" style="margin-bottom:1rem">Proficient in KiCad, Eagle, and Altium Designer for analog and digital circuitry, from schematic capture to production-ready layouts.</p>
+          <div class="skill-tags"><span class="tag">KiCad</span><span class="tag">Eagle</span><span class="tag">Altium</span><span class="tag">Analog</span><span class="tag">Digital</span></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">◈</div>
+          <h3>Hardware Engineering</h3>
+          <p class="skill-desc" style="margin-bottom:1rem">System integration, prototyping, hardware-software validation, and electronic diagnostics including counterfeit detection.</p>
+          <div class="skill-tags"><span class="tag">Prototyping</span><span class="tag">Integration</span><span class="tag">Diagnostics</span><span class="tag">Validation</span></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">▷</div>
+          <h3>Firmware &amp; Software</h3>
+          <p class="skill-desc" style="margin-bottom:1rem">C/C++ for embedded targets, Python for scripting and analysis, MATLAB for signal processing pipelines.</p>
+          <div class="skill-tags"><span class="tag">C / C++</span><span class="tag">Python</span><span class="tag">MATLAB</span><span class="tag">Arduino</span></div>
+        </div>
+        <div class="skill-card">
+          <div class="skill-icon">∿</div>
+          <h3>Signal Processing</h3>
+          <p class="skill-desc" style="margin-bottom:1rem">Audio feature extraction, classification, and analysis. Research-grade implementations in MATLAB and Python.</p>
+          <div class="skill-tags"><span class="tag">Audio DSP</span><span class="tag">Feature Extraction</span><span class="tag">MATLAB</span><span class="tag">Python</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-num">02</span>
+        <h2 class="section-title">Work Experience</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="work-list reveal">
+        <div class="work-card">
+          <div class="work-header">
+            <div class="work-title">Research and Development Engineer</div>
+            <div class="work-period">May 2024 – Present</div>
+          </div>
+          <div class="work-company">Nurjana Technologies</div>
+          <div class="work-location">Elmas, Italy</div>
+          <p class="work-desc">Multi-layer PCB design for R&D applications using KiCad, from schematic to production-ready layout; hardware integration on Electro-Optical systems and UAV platforms.</p>
+        </div>
+        <div class="work-card">
+          <div class="work-header">
+            <div class="work-title">Research Assistant</div>
+            <div class="work-period">Mar 2023 – Aug 2023</div>
+          </div>
+          <div class="work-company">Technische Hochschule Nürnberg Georg Simon Ohm</div>
+          <div class="work-location">Nuremberg, Germany</div>
+          <p class="work-desc">Developed a MATLAB Speech Emotion Recognition pipeline to drive adaptive film music generation for the CGF Project (Erasmus+).</p>
+        </div>
+        <div class="work-card">
+          <div class="work-header">
+            <div class="work-title">Research Assistant</div>
+            <div class="work-period">Dec 2020 – Aug 2021</div>
+          </div>
+          <div class="work-company">University of Cagliari</div>
+          <div class="work-location">Cagliari, Italy</div>
+          <p class="work-desc">Two research grants on counterfeit electronics detection via physical analysis.</p>
+        </div>
+        <div class="work-card">
+          <div class="work-header">
+            <div class="work-title">Technical Support</div>
+            <div class="work-period">Jun 2019 – Feb 2023</div>
+          </div>
+          <div class="work-company">Teknotaurus 3.0 · Service Audio Luci / L'Aquilone di Viviana</div>
+          <div class="work-location">Cagliari, Italy</div>
+          <p class="work-desc">Stage technician and monitor audio engineer for live shows and theatre; live mixing and light design.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-num">03</span>
+        <h2 class="section-title">GitHub Projects</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="projects-grid reveal">
+        <div class="project-card">
+          <div class="proj-category">Firmware / Audio</div>
+          <h3>Joyo MOMIX CAB Custom Firmware</h3>
+          <p>Firmware experiments and custom modifications for the Joyo MOMIX Cab audio interface.</p>
+          <div class="proj-tech"><span>C</span><span>Firmware</span><span>Audio Interface</span></div>
+          <a href="https://github.com/robmurru/Joyo-MOMIX-CAB-Custom-Firmware" target="_blank" style="display:inline-block;margin-top:1rem;font-family:var(--mono);font-size:.65rem;color:var(--muted);text-decoration:none;letter-spacing:.05em;transition:color .2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">↗ github.com/robmurru</a>
+        </div>
+        <div class="project-card">
+          <div class="proj-category">Eurorack / DSP</div>
+          <h3>Coda88 Eurorack Module</h3>
+          <p>Eurorack adaptation of the Coda88 sampler by Sandrolab, bringing the classic sampler into the modular world.</p>
+          <div class="proj-tech"><span>C++</span><span>Arduino</span><span>Eurorack</span><span>DSP</span><span>DIY</span></div>
+          <a href="https://github.com/robmurru/Coda88-Eurorack-Module" target="_blank" style="display:inline-block;margin-top:1rem;font-family:var(--mono);font-size:.65rem;color:var(--muted);text-decoration:none;letter-spacing:.05em;transition:color .2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">↗ github.com/robmurru · ★ 7</a>
+        </div>
+        <div class="project-card">
+          <div class="proj-category">MIDI / Wireless</div>
+          <h3>ESP32 MIDI Footswitch</h3>
+          <p>Open-source fully programmable BLE and Wi-Fi MIDI footswitch built on ESP32, wireless stage control done right.</p>
+          <div class="proj-tech"><span>C++</span><span>ESP32</span><span>BLE</span><span>Wi-Fi</span><span>MIDI</span></div>
+          <a href="https://github.com/robmurru/esp32-midi-footswitch" target="_blank" style="display:inline-block;margin-top:1rem;font-family:var(--mono);font-size:.65rem;color:var(--muted);text-decoration:none;letter-spacing:.05em;transition:color .2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">↗ github.com/robmurru · ★ 18</a>
+        </div>
+        <div class="project-card">
+          <div class="proj-category">Arduino / Eurorack</div>
+          <h3>ATTiny85 Tap Tempo Clock</h3>
+          <p>Minimal clock with tap tempo on an ATTiny85, a compact utility module for Eurorack systems.</p>
+          <div class="proj-tech"><span>C++</span><span>ATTiny85</span><span>Eurorack</span><span>Clock</span></div>
+          <a href="https://github.com/robmurru/attiny85-tap-tempo-clock" target="_blank" style="display:inline-block;margin-top:1rem;font-family:var(--mono);font-size:.65rem;color:var(--muted);text-decoration:none;letter-spacing:.05em;transition:color .2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">↗ github.com/robmurru · ★ 5</a>
+        </div>
+        <div class="project-card">
+          <div class="proj-category">Arduino / Audio</div>
+          <h3>WavTrigger Drum Machine</h3>
+          <p>Arduino interface turning the Robertsonics/SparkFun WavTrigger board into a fully functional drum machine.</p>
+          <div class="proj-tech"><span>Arduino</span><span>WavTrigger</span><span>Audio</span><span>Sequencer</span></div>
+          <a href="https://github.com/robmurru/wavtrigger-dmi" target="_blank" style="display:inline-block;margin-top:1rem;font-family:var(--mono);font-size:.65rem;color:var(--muted);text-decoration:none;letter-spacing:.05em;transition:color .2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">↗ github.com/robmurru</a>
+        </div>
+        <div class="project-card">
+          <div class="proj-category">Lighting / Guide</div>
+          <h3>QLC+ MagicQ Visualizer</h3>
+          <p>Guide on integrating QLC+ 4 with the MagicQ built-in visualizer for live lighting design and programming.</p>
+          <div class="proj-tech"><span>QLC+</span><span>MagicQ</span><span>DMX</span><span>Lighting</span></div>
+          <a href="https://github.com/robmurru/qlcplus_magicq_visualizer" target="_blank" style="display:inline-block;margin-top:1rem;font-family:var(--mono);font-size:.65rem;color:var(--muted);text-decoration:none;letter-spacing:.05em;transition:color .2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">↗ github.com/robmurru · ★ 4</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section id="education">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-num">04</span>
+        <h2 class="section-title">Education &amp; Certifications</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="edu-grid reveal">
+        <div class="edu-card">
+          <div class="edu-type">Graduate Degree</div>
+          <h3>MSc Electronics Engineering</h3>
+          <div class="institution">University of Cagliari</div>
+          <div class="edu-thesis">AI Based Affective Sound Design for Movie Drones</div>
+        </div>
+        <div class="edu-card">
+          <div class="edu-type">Undergraduate Degree</div>
+          <h3>BSc Electrical &amp; Electronics Engineering</h3>
+          <div class="institution">University of Cagliari</div>
+          <div class="edu-thesis">Counterfeit Electronics: Case Studies</div>
+        </div>
+        <div class="edu-card cert">
+          <div class="edu-type">Certification</div>
+          <h3>UAS Remote Pilot</h3>
+          <div class="institution">EASA Open Category A1/A3</div>
+        </div>
+        <div class="edu-card cert">
+          <div class="edu-type">Certification</div>
+          <h3>Electrical Safety</h3>
+          <div class="institution">CEI 11-27 / EN 50110-1</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PUBLICATIONS -->
+  <section id="publications">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-num">05</span>
+        <h2 class="section-title">Publications</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="pub-list reveal">
+        <div class="pub-card">
+          <div class="pub-meta">
+            <span class="pub-venue">TH Nürnberg Georg Simon Ohm</span>
+            <span class="pub-date">Nov 2023</span>
+          </div>
+          <h3 class="pub-title">AI Generated Music Using Speech Emotion Recognition</h3>
+          <p class="pub-abstract">A comparative study of two speech emotion recognition models, evaluating their efficacy in capturing emotional dynamics from film dialogue to support the compositional process of film scores.</p>
+          <div class="pub-tags"><span class="tag">Speech Emotion Recognition</span><span class="tag">Film Scoring</span><span class="tag">Audio DSP</span><span class="tag">MATLAB</span></div>
+          <a href="https://opus4.kobv.de/opus4-ohm/frontdoor/index/index/docId/1201" target="_blank" class="pub-link">↗ opus4.kobv.de</a>
+          <a href="https://doi.org/10.34646/thn/ohmdok-1201" target="_blank" class="pub-link" style="margin-left:1.25rem">DOI: 10.34646/thn/ohmdok-1201</a>
+        </div>
+        <div class="pub-card">
+          <div class="pub-meta">
+            <span class="pub-venue">2021 IEEE 32nd Int'l Conference on Microelectronics (MIEL)</span>
+            <span class="pub-date">Sep 2021</span>
+          </div>
+          <h3 class="pub-title">Analysis of Fake Amplifiers</h3>
+          <p class="pub-abstract">Investigation of counterfeit electronic amplifiers as a critical reliability concern, addressing labour exploitation, environmental harms, increased field failures, and rework rates caused by undetected counterfeits in manufacturing.</p>
+          <div class="pub-tags"><span class="tag">Counterfeit Electronics</span><span class="tag">Reliability</span><span class="tag">IEEE</span><span class="tag">Diagnostics</span></div>
+          <a href="https://ieeexplore.ieee.org/document/9569080" target="_blank" class="pub-link">↗ ieeexplore.ieee.org</a>
+          <a href="https://doi.org/10.1109/MIEL52794.2021.9569080" target="_blank" class="pub-link" style="margin-left:1.25rem">DOI: 10.1109/MIEL52794.2021.9569080</a>
+        </div>
+        <div class="pub-card">
+          <div class="pub-meta">
+            <span class="pub-venue">Microelectronics Reliability</span>
+            <span class="pub-date">Nov 2020</span>
+          </div>
+          <h3 class="pub-title">Analysis of Counterfeit Electronics</h3>
+          <p class="pub-abstract">Two case studies documenting the capillary penetration of counterfeit devices in the supply chain, raising concerns on safety, security, and the absence of effective origin-verification tools.</p>
+          <div class="pub-tags"><span class="tag">Counterfeit Electronics</span><span class="tag">Supply Chain</span><span class="tag">Safety</span><span class="tag">Case Study</span></div>
+          <a href="https://www.sciencedirect.com/science/article/abs/pii/S0026271420306065?via%3Dihub" target="_blank" class="pub-link">↗ sciencedirect.com</a>
+          <a href="https://doi.org/10.1016/j.microrel.2020.113793" target="_blank" class="pub-link" style="margin-left:1.25rem">DOI: 10.1016/j.microrel.2020.113793</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-header reveal" style="justify-content:center">
+        <span class="section-num">06</span>
+        <h2 class="section-title">Connect</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="contact-inner reveal">
+        <div class="connect-grid">
+          <a href="https://robmurru.wordpress.com" target="_blank" class="connect-card">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span class="connect-label">Blog</span>
+            <span class="connect-sub">robmurru.wordpress.com</span>
+          </a>
+          <a href="https://github.com/robmurru" target="_blank" class="connect-card">
+            <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            <span class="connect-label">GitHub</span>
+            <span class="connect-sub">github.com/robmurru</span>
+          </a>
+          <a href="https://linkedin.com/in/robmurru" target="_blank" class="connect-card">
+            <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            <span class="connect-label">LinkedIn</span>
+            <span class="connect-sub">linkedin.com/in/robmurru</span>
+          </a>
+          <a href="mailto:roberto.murru.ing@gmail.com" class="connect-card">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span class="connect-label">E-mail</span>
+            <span class="connect-sub">roberto.murru.ing@gmail.com</span>
+          </a>
+        </div>
+        <div class="interests-strip">
+          <span class="interest">Electronics</span>
+          <span class="interest">Embedded Systems</span>
+          <span class="interest">Audio Technology & DSP</span>
+          <span class="interest">Open Source Hardware</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <span>© 2025 Roberto Murru</span>
+      <span>robmurru.github.io</span>
+    </div>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    const root = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') root.classList.remove('light');
+    else if (!saved) root.classList.add('light');
+    btn.addEventListener('click', () => {
+      root.classList.toggle('light');
+      localStorage.setItem('theme', root.classList.contains('light') ? 'light' : 'dark');
+    });
+
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    let t = 0;
+    function resize() { canvas.width = window.innerWidth; canvas.height = 120; }
+    resize();
+    window.addEventListener('resize', resize);
+    function drawWave() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#00e5a0'; ctx.lineWidth = 1.5; ctx.beginPath();
+      for (let x = 0; x < canvas.width; x++) {
+        const y = 60 + Math.sin((x*0.01)+t)*20 + Math.sin((x*0.025)+t*1.3)*12 + Math.sin((x*0.006)+t*0.7)*30;
+        x === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      ctx.strokeStyle = '#0099ff'; ctx.lineWidth = 1; ctx.beginPath();
+      for (let x = 0; x < canvas.width; x++) {
+        const y = 60 + Math.sin((x*0.015)+t*1.1+1)*15 + Math.sin((x*0.04)+t*0.9)*8;
+        x === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+      t += 0.012;
+      requestAnimationFrame(drawWave);
+    }
+    drawWave();
+
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((e,i) => {
+        if (e.isIntersecting) { setTimeout(() => e.target.classList.add('visible'), i*80); observer.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
