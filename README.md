@@ -57,12 +57,12 @@ Stage technician and monitor audio engineer for live shows and theatre; live mix
 
 | Project | Description | Stack |
 |---|---|---|
+| [muRDrum](https://github.com/robmurru/muRDrum) | Eight-slot, 16-voice MIDI drum sample player for Eurorack (3U/6HP and 1U/20HP), Raspberry Pi Pico 2 | C · RP2350 · Eurorack · MIDI |
 | [Joyo MOMIX CAB Custom Firmware](https://github.com/robmurru/Joyo-MOMIX-CAB-Custom-Firmware) | Firmware experiments and custom modifications for the Joyo MOMIX Cab audio interface | C · Firmware |
 | [Coda88 Eurorack Module](https://github.com/robmurru/Coda88-Eurorack-Module) ★7 | Eurorack adaptation of the Coda88 sampler by Sandrolab | C++ · Arduino · DSP · DIY |
 | [ESP32 MIDI Footswitch](https://github.com/robmurru/esp32-midi-footswitch) ★18 | Open-source fully programmable BLE and Wi-Fi MIDI footswitch | C++ · ESP32 · BLE · Wi-Fi |
 | [ATTiny85 Tap Tempo Clock](https://github.com/robmurru/attiny85-tap-tempo-clock) ★5 | Minimal tap tempo clock for Eurorack systems | C++ · ATTiny85 |
 | [WavTrigger Drum Machine](https://github.com/robmurru/wavtrigger-dmi) | Arduino interface turning the WavTrigger board into a drum machine | Arduino · Audio |
-| [QLC+ MagicQ Visualizer](https://github.com/robmurru/qlcplus_magicq_visualizer) ★4 | Guide for integrating QLC+ 4 with the MagicQ built-in visualizer | QLC+ · MagicQ · DMX |
 
 ---
 
